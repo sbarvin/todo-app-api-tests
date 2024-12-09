@@ -16,7 +16,4 @@ public interface AppConfig extends Config {
 
     @Key("service.api.password")
     String password();
-
-    @Key("service.api.wsUrl")
-    String wsUrl();
 }
