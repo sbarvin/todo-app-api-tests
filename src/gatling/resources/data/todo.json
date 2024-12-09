@@ -1,0 +1,5 @@
+{
+  "completed": #{completed},
+  "id":  #{id},
+  "text": "#{text}"
+}
