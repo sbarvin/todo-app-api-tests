@@ -36,7 +36,7 @@ public class SocketClient extends WebSocketClient {
     @Override
     public void onMessage(String message) {
         System.out.println("Received new message " + message);
-        context.getMessageList().add(message);
+        context.getReceivedMessageList().add(message);
         String expectedMessage = context.getExpectedMessage();
         if (expectedMessage != null && expectedMessage.equals(message)) {
             closeConnection(CLOSE_NORMAL.getValue(), "Received expected message");

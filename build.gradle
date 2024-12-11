@@ -33,6 +33,7 @@ dependencies {
             "org.assertj:assertj-core:3.26.3"
     )
     gatlingImplementation(
+            "io.qameta.allure:allure-rest-assured:$allureVersion",
             "org.aeonbits.owner:owner:$ownerVersion",
             "com.github.javafaker:javafaker:$javaFakerVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion"

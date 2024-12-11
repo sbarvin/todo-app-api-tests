@@ -7,6 +7,7 @@ import io.gatling.javaapi.core.Simulation;
 import io.gatling.javaapi.http.HttpDsl;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
 import todoapp.config.App;
+import todoapp.rest.client.RestClient;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -14,12 +15,11 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static io.restassured.RestAssured.given;
-
 public class MaxPerfomanceTest extends Simulation {
 
-    private Faker faker = new Faker();
-    private ArrayList<Long> createdIds = new ArrayList<>();
+    private final Faker faker = new Faker();
+    private final ArrayList<Long> createdIds = new ArrayList<>();
+    private final RestClient restClient = RestClient.api();
     HttpProtocolBuilder httpProtocol =
             HttpDsl.http.baseUrl(App.config.baseUrl())
                     .acceptHeader("application/json")
@@ -68,9 +68,7 @@ public class MaxPerfomanceTest extends Simulation {
     @Override
     public void after() {
         createdIds.forEach(
-                id -> given().baseUri(App.config.baseUrl())
-                        .auth().preemptive().basic(App.config.username(), App.config.password())
-                        .delete("/todos/" + id)
+                id -> restClient.todo().delete(id)
         );
     }
 }

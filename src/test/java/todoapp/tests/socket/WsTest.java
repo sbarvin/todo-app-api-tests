@@ -10,7 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import todoapp.config.App;
-import todoapp.models.Data;
+import todoapp.models.SocketMsg;
 import todoapp.models.Todo;
 import todoapp.socket.SocketConnector;
 import todoapp.socket.SocketContext;
@@ -18,6 +18,7 @@ import todoapp.tests.TestBase;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static todoapp.enums.WsStatus.CLOSE_NORMAL;
 
 @Epic("todo-app")
@@ -48,20 +49,25 @@ public class WsTest extends TestBase {
     @DisplayName("Get updates about new TODOs")
     void successTest() {
         //given
-        var newTodo = Todo.create();
-        var expectedMessage = objectMapper.writeValueAsString(Data.create(newTodo));
+        var expectedMessage = SocketMsg.create(Todo.create());
 
-        Runnable runPost = () -> restClient.todo().post(newTodo);
+        Runnable runPost = () -> restClient.todo().post(expectedMessage.getData());
         context.setURI(SOCKET_ENDPOINT);
         context.setRunnable(runPost);
-        context.setExpectedMessage(expectedMessage);
+        context.setExpectedMessage(objectMapper.writeValueAsString(expectedMessage));
 
         //when
         SocketConnector.ws().connect(context);
 
         //then
-        assertThat("Expected message not received", context.getStatusCode(), equalTo(CLOSE_NORMAL.getValue()));
-        restClient.todo().delete(newTodo.getId());
+        assertAll(
+                ()->assertThat("Expected message not received", context.getStatusCode(), equalTo(CLOSE_NORMAL.getValue())),
+                ()->assertThat("Expected message not equal to received",
+                        objectMapper.readValue(context.getReceivedMessageList().getLast(), SocketMsg.class),
+                        equalTo(expectedMessage)
+                )
+        );
+        restClient.todo().delete(expectedMessage.getData().getId());
     }
 
 
